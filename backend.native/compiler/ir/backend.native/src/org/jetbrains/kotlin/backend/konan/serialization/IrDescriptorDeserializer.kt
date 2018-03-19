@@ -21,7 +21,6 @@ import org.jetbrains.kotlin.backend.konan.KonanIrDeserializationException
 import org.jetbrains.kotlin.backend.konan.descriptors.contributedMethods
 import org.jetbrains.kotlin.backend.konan.descriptors.isFunctionInvoke
 import org.jetbrains.kotlin.backend.konan.descriptors.findPackage
-import org.jetbrains.kotlin.backend.konan.llvm.isExported
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.ir.expressions.IrLoop
@@ -29,14 +28,13 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.tasks.createSynthesizedInvokes
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.serialization.KonanIr
-import org.jetbrains.kotlin.serialization.KonanIr.KotlinDescriptor
 import org.jetbrains.kotlin.serialization.KonanIr.KotlinDescriptor.Kind.*
 import org.jetbrains.kotlin.serialization.KonanIr.DeclarationDescriptor.*
-import org.jetbrains.kotlin.serialization.KonanLinkData
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 import org.jetbrains.kotlin.serialization.deserialization.NameResolverImpl
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.*
+import org.jetbrains.kotlin.serialization.deserialization.TypeTable
 import org.jetbrains.kotlin.types.*
 
 internal fun DeserializedMemberDescriptor.nameTable(): ProtoBuf.QualifiedNameTable {
@@ -50,7 +48,7 @@ internal fun DeserializedMemberDescriptor.nameResolver(): NameResolver {
     return NameResolverImpl(pkg.proto.getStringTable(), pkg.proto.getNameTable())
 }
 
-// This is the class that knowns how to deserialize
+// This is the class that knows how to deserialize
 // Kotlin descriptors and types for IR.
 
 internal class IrDescriptorDeserializer(val context: Context, 
@@ -82,7 +80,6 @@ internal class IrDescriptorDeserializer(val context: Context,
     fun deserializeLocalDeclaration(irProto: KonanIr.KotlinDescriptor): DeclarationDescriptor {
         val localDeclarationProto = irProto.irLocalDeclaration.descriptor
         val index = irProto.index
-        //val localDeserializer = LocalDeclarationDeserializer(parent)
         val descriptor: DeclarationDescriptor = when(localDeclarationProto.descriptorCase) {
             DescriptorCase.FUNCTION ->
                 localDeserializer.deserializeFunction(irProto)

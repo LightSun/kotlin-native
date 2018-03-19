@@ -80,12 +80,12 @@ internal class IrSerializer(val context: Context,
         return irDescriptorSerializer.serializeKotlinType(type)
     }
 
-    private fun serializeDescriptor(descriptor: DeclarationDescriptor): KonanIr.KotlinDescriptor {
+    private fun serializeDescriptor(descriptor: DeclarationDescriptor, substituted: Boolean = true): KonanIr.KotlinDescriptor {
         context.log{"### serializeDescriptor $descriptor"}
 
         // Behind this call starts a large world of 
         // descriptor serialization for IR.
-        return irDescriptorSerializer.serializeDescriptor(descriptor)
+        return irDescriptorSerializer.serializeDescriptor(descriptor, substituted)
     }
 
     private fun serializeCoordinates(start: Int, end: Int): KonanIr.Coordinates {
@@ -652,7 +652,7 @@ internal class IrSerializer(val context: Context,
             localDeclarationSerializer.pushContext(descriptor)
         }
 
-        var kotlinDescriptor = serializeDescriptor(descriptor)
+        var kotlinDescriptor = serializeDescriptor(descriptor, substituted = false)
         var realDescriptor: KonanIr.DeclarationDescriptor? = null
         if (descriptor != rootFunction) {
             realDescriptor = localDeclarationSerializer.serializeLocalDeclaration(descriptor)

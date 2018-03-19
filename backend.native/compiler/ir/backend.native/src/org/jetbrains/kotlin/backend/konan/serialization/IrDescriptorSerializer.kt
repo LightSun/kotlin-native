@@ -113,7 +113,7 @@ internal class IrDescriptorSerializer(
             proto.setExtensionReceiverType(
                 serializeKotlinType(extensionReceiver.type))
         }
-                
+
         proto.setType(serializeKotlinType(
             descriptor.returnType!!)) 
 
@@ -124,10 +124,11 @@ internal class IrDescriptorSerializer(
 
     }
 
-    fun serializeDescriptor(descriptor: DeclarationDescriptor): KonanIr.KotlinDescriptor {
+    fun serializeDescriptor(descriptor: DeclarationDescriptor, substituted: Boolean = true): KonanIr.KotlinDescriptor {
 
-        if (descriptor is CallableMemberDescriptor &&  
-            descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
+        if (!substituted &&
+            descriptor is CallableMemberDescriptor &&
+             descriptor.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE) {
             // TODO: It seems rather braindead. 
             // Do we need to do anything more than that?
             return serializeDescriptor(DescriptorUtils.unwrapFakeOverride(descriptor))

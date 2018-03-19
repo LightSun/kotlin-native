@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
 import org.jetbrains.kotlin.backend.common.push
 import org.jetbrains.kotlin.backend.konan.descriptors.allContainingDeclarations
+import org.jetbrains.kotlin.backend.konan.descriptors.resolveFakeOverride
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor
 import org.jetbrains.kotlin.serialization.Flags
@@ -86,12 +87,15 @@ class LocalDeclarationDeserializer(val rootDescriptor: DeclarationDescriptor) {
 
         val oldContext = contextStack.peek()!!.first
 
-        return oldContext.childContext(descriptor, 
+        return oldContext.childContext(descriptor,
             descriptor.typeParameterProtos, nameResolver, typeTable)
     }
 
     fun pushContext(descriptor: DeclarationDescriptor) {
-        val newContext = newContext(descriptor)
+        //val realDescriptor = descriptor.let {
+         //   if (it is CallableMemberDescriptor) it.resolveFakeOverride() else it
+        //}.original
+        val newContext = newContext(descriptor.original)
         contextStack.push(Pair(newContext, MemberDeserializer(newContext)))
     }
 
